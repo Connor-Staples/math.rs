@@ -1,0 +1,9 @@
+[package]
+name = "math"
+version = "0.1.0"
+edition = "2021"
+authors = ["Connor Staples <connor.staples2004@gmail.com>" ]
+
+[dependencies]
+num = "0.4"
+rand = "0.8.5"
