@@ -1,0 +1,1 @@
+A collection of math related functions that I created for uses
