@@ -219,6 +219,66 @@ impl<T:Default + Copy + Send + Sync + 'static + std::ops::Mul + Add<Output = T> 
         Ok(output.clone())
 
     }
+    //multiplies by the transpose of mat2
+    pub fn multiply_by_transpose(&self, mat2: &Matrix<T>) -> Result<Matrix<T>, String> {
+        if self.dimensions.1 != mat2.dimensions.1 {
+            return Err(String::from("Attempted to multiply the transpose of mat 2 that cannot be multiplied due to dimensions"));
+        }
+
+        //create 2d vector for our threads to put their values in
+        let mut output_values: Arc<Mutex<Vec<Vec<T>>>> = Arc::new(Mutex::new(vec![vec![]; self.dimensions.0]));
+
+        //create references for our threads to access and compute their values
+        let lhs = Arc::new(self.clone());
+        let rhs = Arc::new(mat2.clone());
+        
+        let mut threads: Vec<JoinHandle<()> > = vec![];
+
+        //create thread for each row in the output matrix
+        for row_index in 0..self.dimensions.0 {
+            let cloned_lhs = lhs.clone();
+            let cloned_rhs = rhs.clone();
+
+            let output = output_values.clone();
+
+            let thread = thread::spawn(move || {
+                //all values needed are now in the thread
+                let index = row_index;
+                let lhs_ref = cloned_lhs;
+                let rhs_ref = cloned_rhs;
+
+                //lhs row
+                let row = &lhs_ref.values[index];
+                let mut out_row: Vec<T> = vec![];
+
+                //iterate over all rhs columns
+                for value in 0..rhs_ref.values.len() {
+                    let mut c = T::default();
+                    for i in 0..row.len() {
+                        c = c + (row[i] * rhs_ref.values[value][i]);
+                    }
+                    out_row.push(c);
+                }
+
+                let mut output = output.lock().unwrap();
+                output[index] = out_row;
+
+            });
+
+
+            threads.push(thread);
+        }
+
+        for thread in threads {
+            thread.join().unwrap();
+        }
+
+        let vec = output_values.lock().unwrap();
+
+        let mat = Matrix::from_vec(&vec).unwrap();
+
+        return Ok(mat)
+    }
 }
 
 //Addition and Subtraction
