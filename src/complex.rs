@@ -70,7 +70,7 @@ impl<T: Copy + Sub + Num> Sub for Complex<T> where T: Sub<Output = T>{
     }
 }
 
-//multiply by non-complex scalar :3 NON COMMUTATIVE FOR SOME REASON I CANT FIGURE OUT HOW TO IMPLEMENT LEFT HAND SIDE 
+//multiply by non-complex scalar :
 impl<T: Copy + Num> Mul<T> for Complex<T> where T: Mul<Output = T> {
     type Output = Complex<T>;
     fn mul(self, other: T) -> Complex<T> {

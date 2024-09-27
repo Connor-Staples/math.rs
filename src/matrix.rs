@@ -10,7 +10,7 @@ use rand::Rng;
 
 //definition
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Matrix<T> { 
    pub dimensions: (usize, usize),
     pub values: Vec<Vec<T>>,
